@@ -1,0 +1,1 @@
+print("Hello AI FPTU - Toi da ket noi duoc Github")
