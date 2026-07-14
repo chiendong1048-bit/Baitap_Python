@@ -1,0 +1,8 @@
+[run]
+source = .
+omit =
+    tests/*
+    */site-packages/*
+
+[report]
+show_missing = True
