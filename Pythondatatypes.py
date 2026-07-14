@@ -1,9 +1,11 @@
 # data type : kiểu dữ liệu
+from utils import trung_binh
+
 ten_sv = "Đồng Tố Chiến"
 ma_so_sv = 14
 diem_toan = 8.5
 diem_ly = 8.9
-diem_trung_binh = (diem_toan + diem_ly) / 2
+diem_trung_binh = trung_binh(diem_toan, diem_ly)
 print(f"Sinh viên {ten_sv}","mã số sinh viên là:",{ ma_so_sv}, "có điểm trung bình là:", {diem_trung_binh})
 # list[]: danh sách ->cho phép thay đổi giá trị,cho phép các giá trị lặp và danh sách xếp theo thứ tự
 # trong list[] thì item đầu tiên là số 0 rồi đến 1,2,3....
