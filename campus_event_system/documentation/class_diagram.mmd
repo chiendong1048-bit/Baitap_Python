@@ -1,0 +1,77 @@
+classDiagram
+    class User {
+        <<abstract>>
+        +int user_id
+        +str username
+        +str password_hash
+        +str full_name
+        +role_name() str
+        +menu_options() list
+        +to_dict() dict
+    }
+    class Admin
+    class Organizer
+    class StudentVisitor
+    User <|-- Admin
+    User <|-- Organizer
+    User <|-- StudentVisitor
+
+    class Event {
+        +int event_id
+        +str name
+        +str date_str
+        +int capacity
+        +str organizer_username
+        +str description
+        +list registered_usernames
+        +registered_count int
+        +seats_left int
+        +is_full bool
+        +to_dict() dict
+        +from_dict(data) Event
+    }
+
+    class AuthManager {
+        +dict users
+        +register(username, password, full_name, role_key) User
+        +login(username, password) User
+        +get_user(username) User
+        +has_user(username) bool
+        +save()
+    }
+
+    class EventManager {
+        +dict events
+        +create_event(actor, ...) Event
+        +update_event(actor, event_id, fields) Event
+        +delete_event(actor, event_id)
+        +search_events(keyword, date, only_available) list
+        +register_attendee(actor, event_id, username) Event
+        +unregister_attendee(actor, event_id, username) Event
+        +statistics_report() dict
+        +export_statistics_csv() str
+        +upcoming_events_for_attendee(...) list
+        +upcoming_events_for_organizer(...) list
+    }
+
+    class security {
+        +hash_password(raw_password) str
+        +verify_password(raw_password, stored_hash) bool
+    }
+
+    class storage {
+        +load_users() list
+        +save_users(data)
+        +load_events() list
+        +save_events(data)
+        +export_csv(filename, headers, rows) str
+    }
+
+    AuthManager "1" o-- "*" User
+    EventManager "1" o-- "*" Event
+    EventManager --> AuthManager : validates roles
+    AuthManager --> security : hashes/verifies
+    AuthManager --> storage : users.json
+    EventManager --> storage : events.json/CSV
+    Event --> Organizer : organizer_username
+    Event --> StudentVisitor : registered_usernames

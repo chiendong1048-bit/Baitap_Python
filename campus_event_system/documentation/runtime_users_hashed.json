@@ -1,0 +1,23 @@
+[
+  {
+    "user_id": 1,
+    "username": "admin",
+    "password_hash": "4fdc146b72e3ba7eee78861241b14868$2d207ec78ee344290c06d12172ca3716c68293d2567fe423bcba5e98712e15c7",
+    "full_name": "System Admin",
+    "role": "Admin"
+  },
+  {
+    "user_id": 2,
+    "username": "orge2e",
+    "password_hash": "9c541fe548a28387b90e7a29a500c442$5ff501310783681ffbb3b6fc74b14b405f834627fc427780d9212aba44256ff7",
+    "full_name": "Nguyen Van Organizer",
+    "role": "Event Organizer"
+  },
+  {
+    "user_id": 3,
+    "username": "studente2e",
+    "password_hash": "73bc9054b9f1b30d07d02169eaff2a3f$bcc01388e08e42ef22d9ddc808784433232050c370cf1cdcc0a06d8657c32a1f",
+    "full_name": "Tran Gia Huy",
+    "role": "Student/Visitor"
+  }
+]

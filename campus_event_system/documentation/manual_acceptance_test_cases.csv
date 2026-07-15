@@ -1,0 +1,25 @@
+﻿Test ID,Nhóm,Mục tiêu,Điều kiện,Các bước,Kết quả mong đợi,Kết quả
+AT-01,Admin,Đăng nhập Admin,users.json hợp lệ,Đăng nhập admin/admin123,Vào đúng menu Admin,PASS
+AT-02,Account,Đăng ký Organizer,Hệ thống chạy,Tạo tài khoản role 2,Mật khẩu được băm và role đúng,PASS
+AT-03,Account,Đăng ký Student/Visitor,Hệ thống chạy,Tạo tài khoản role 3,Mật khẩu được băm và role đúng,PASS
+AT-04,Security,Chặn tự đăng ký Admin,Menu đăng ký,Quan sát lựa chọn role,Chỉ có role 2 và 3,PASS
+AT-05,Admin,Tạo event hợp lệ,Organizer tồn tại,Nhập tên/ngày/capacity/owner,Event có ID mới và được lưu,PASS
+AT-06,Validation,Ngày sai định dạng,Admin đăng nhập,Nhập 18/07/2026,"Báo lỗi, không tạo event",PASS
+AT-07,Validation,Capacity bằng 0/âm/chữ,Admin đăng nhập,Nhập từng giá trị biên,Báo lỗi rõ ràng,PASS
+AT-08,Admin,Update atomic,Event tồn tại,Đổi tên nhưng nhập ngày sai,Không field nào bị thay đổi,PASS
+AT-09,Admin,Xóa mô tả optional,Event có mô tả,Update và nhập '-' ở mô tả,Mô tả được xóa,PASS
+AT-10,RBAC,Non-admin không CRUD event,Organizer/Student đăng nhập,Gọi create/update/delete,PermissionDenied,PASS
+AT-11,Organizer,Xem event được giao,Event thuộc Organizer,Mở menu chi tiết,Hiện event và attendee,PASS
+AT-12,Organizer,Thêm attendee event sở hữu,Student tồn tại,Nhập event ID và username,Registration thành công,PASS
+AT-13,Organizer,Chặn quản lý event người khác,Event thuộc Organizer khác,Thêm attendee,PermissionDenied,PASS
+AT-14,Student,Tìm theo tên/mô tả/ngày,Có event phù hợp,Nhập filter,Chỉ event phù hợp xuất hiện,PASS
+AT-15,Student,Lọc event còn chỗ,Có event full và open,Chọn Y,Event full bị loại,PASS
+AT-16,Student,Tự đăng ký,Event còn chỗ,Nhập event ID,Xác nhận và count tăng,PASS
+AT-17,Registration,Chặn đăng ký trùng,Student đã đăng ký,Đăng ký lại,DuplicateRegistrationError,PASS
+AT-18,Registration,Chặn event hết chỗ,registered == capacity,Đăng ký thêm,EventFullError,PASS
+AT-19,Student,Hủy đăng ký,Student đã đăng ký,Nhập event ID,Count giảm và persistence cập nhật,PASS
+AT-20,Statistics,Tổng/cao nhất/thấp nhất/tie,Nhiều event,Mở báo cáo,Số liệu và tie chính xác,PASS
+AT-21,Persistence,Reload JSON,Đã lưu users/events,Khởi tạo manager mới,Dữ liệu khôi phục đúng,PASS
+AT-22,Persistence,Dữ liệu JSON hỏng,events.json sai cấu trúc,Khởi động app,"Lỗi hệ thống, không traceback",PASS
+AT-23,CSV,Xuất CSV,Có event,Admin chọn export,"UTF-8 BOM, đủ cột, status đúng",PASS
+AT-24,Reminder,Nhắc lịch 7 ngày,Event trong cửa sổ,Organizer/Student đăng nhập,Hiện đúng event liên quan,PASS

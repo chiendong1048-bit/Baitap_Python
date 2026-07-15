@@ -1,0 +1,2 @@
+
+[Lỗi hệ thống] Mỗi sự kiện trong dữ liệu phải là một object JSON.

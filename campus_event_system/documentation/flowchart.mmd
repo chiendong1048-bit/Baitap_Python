@@ -1,0 +1,77 @@
+flowchart TD
+    A([Khởi động]) --> B[Khởi tạo AuthManager]
+    B --> C[Đọc users.json]
+    C --> D[Seed Admin demo nếu dữ liệu rỗng]
+    D --> E[Khởi tạo EventManager và đọc events.json]
+    E --> F{Dữ liệu hợp lệ?}
+    F -- Không --> G[Hiển thị lỗi hệ thống, không traceback]
+    G --> Z([Kết thúc an toàn])
+    F -- Có --> H{Menu chính}
+
+    H -- Đăng ký --> I[Nhập username, mật khẩu, họ tên]
+    I --> J{Vai trò công khai}
+    J -- Event Organizer --> K[Băm mật khẩu và lưu Organizer]
+    J -- Student/Visitor --> L[Băm mật khẩu và lưu Student/Visitor]
+    K --> H
+    L --> H
+
+    H -- Đăng nhập --> M[Kiểm tra username và password hash]
+    M --> N{Hợp lệ?}
+    N -- Không --> O[Thông báo lỗi đăng nhập]
+    O --> H
+    N -- Có --> P{Vai trò}
+
+    P -- Admin --> A1[Menu Admin]
+    A1 --> A2[Xem tất cả sự kiện]
+    A1 --> A3[Tạo sự kiện]
+    A1 --> A4[Cập nhật sự kiện]
+    A1 --> A5[Xóa sự kiện]
+    A1 --> A6[Xem người tham gia]
+    A1 --> A7[Xem thống kê]
+    A1 --> A8[Xuất báo cáo CSV]
+    A3 --> V[Validate tên, ngày, capacity, Organizer]
+    A4 --> V
+    V --> W{Dữ liệu hợp lệ?}
+    W -- Không --> X[Thông báo lỗi, giữ nguyên dữ liệu]
+    W -- Có --> Y[Lưu events.json atomically]
+    A5 --> Y
+    A2 --> A1
+    A6 --> A1
+    A7 --> A1
+    A8 --> A1
+    X --> A1
+    Y --> A1
+
+    P -- Event Organizer --> B1[Hiển thị nhắc lịch 7 ngày]
+    B1 --> B2[Menu Organizer]
+    B2 --> B3[Xem sự kiện mình phụ trách và attendee]
+    B2 --> B4[Thêm hoặc hủy registration]
+    B4 --> B5{Đúng sự kiện sở hữu và attendee hợp lệ?}
+    B5 -- Không --> B6[Thông báo lỗi quyền hoặc dữ liệu]
+    B5 -- Có --> B7{Trùng hoặc hết chỗ?}
+    B7 -- Có --> B8[Thông báo lỗi nghiệp vụ]
+    B7 -- Không --> Y
+    B3 --> B2
+    B6 --> B2
+    B8 --> B2
+
+    P -- Student/Visitor --> C1[Hiển thị nhắc lịch 7 ngày]
+    C1 --> C2[Menu Student/Visitor]
+    C2 --> C3[Tìm theo tên, mô tả, ngày, còn chỗ]
+    C2 --> C4[Tự đăng ký sự kiện]
+    C2 --> C5[Hủy đăng ký]
+    C2 --> C6[Xem sự kiện đã đăng ký]
+    C4 --> C7{Event tồn tại, còn chỗ, chưa đăng ký?}
+    C7 -- Không --> C8[Thông báo lỗi nghiệp vụ]
+    C7 -- Có --> Y
+    C5 --> C9{Đã đăng ký?}
+    C9 -- Không --> C8
+    C9 -- Có --> Y
+    C3 --> C2
+    C6 --> C2
+    C8 --> C2
+
+    A1 -- Đăng xuất --> H
+    B2 -- Đăng xuất --> H
+    C2 -- Đăng xuất --> H
+    H -- Thoát --> Z

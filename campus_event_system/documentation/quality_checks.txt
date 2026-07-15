@@ -1,0 +1,5 @@
+python3 -m unittest -v test_system.py: PASS (93/93)
+python3 -m py_compile: PASS
+flake8: PASS
+CLI E2E: PASS (17 assertions, exit 0)
+Coverage: 90% branch-inclusive source coverage
