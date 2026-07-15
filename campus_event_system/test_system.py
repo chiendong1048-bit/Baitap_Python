@@ -6,6 +6,8 @@ import os
 import shutil
 import tempfile
 import unittest
+from datetime import date, datetime
+from unittest.mock import patch
 
 from auth import AuthManager
 from exceptions import (
@@ -27,7 +29,25 @@ from models import (
     user_from_dict,
     validate_date,
 )
+import main as cli
+import security
 import storage
+
+
+ORIGINAL_PASSWORD_ITERATIONS = security._ITERATIONS
+
+
+def setUpModule():
+    # PBKDF2 is deliberately slow to resist brute-force attacks (good for
+    # production). That same slowness would make ~300 test-user
+    # registrations take tens of seconds, so the test run lowers the
+    # iteration count once, globally, while keeping the real algorithm and
+    # salting logic under test. security.py itself is untouched.
+    security._ITERATIONS = 1_000
+
+
+def tearDownModule():
+    security._ITERATIONS = ORIGINAL_PASSWORD_ITERATIONS
 
 
 class IsolatedStorageTestCase(unittest.TestCase):
@@ -151,7 +171,7 @@ class TestInputValidation(IsolatedStorageTestCase):
             self.create_event(description="A" * 501)
 
     def test_event_id_must_be_positive_integer(self):
-        for invalid in (0, -1, "abc", True):
+        for invalid in (0, -1, "abc", True, 1.5):
             with self.subTest(invalid=invalid):
                 with self.assertRaises(ValidationError):
                     Event(
@@ -161,6 +181,32 @@ class TestInputValidation(IsolatedStorageTestCase):
                         10,
                         "orgUser",
                     )
+
+    def test_user_id_must_be_positive_integer(self):
+        for invalid in (True, 1.5):
+            data = {
+                "user_id": invalid,
+                "username": "newUser",
+                "password_hash": "salt$digest",
+                "full_name": "New User",
+                "role": "Student/Visitor",
+            }
+            with self.subTest(invalid=invalid):
+                with self.assertRaises(ValidationError):
+                    user_from_dict(data)
+
+    def test_username_must_be_text(self):
+        data = {
+            "user_id": 10,
+            "username": 12345,
+            "password_hash": "salt$digest",
+            "full_name": "New User",
+            "role": "Student/Visitor",
+        }
+        with self.assertRaises(ValidationError):
+            user_from_dict(data)
+        with self.assertRaises(ValidationError):
+            self.auth.register(12345, "pass", "New User", "3")
 
 
 class TestAuthentication(IsolatedStorageTestCase):
@@ -204,6 +250,92 @@ class TestAuthentication(IsolatedStorageTestCase):
         }
         with self.assertRaises(ValidationError):
             user_from_dict(data)
+
+    def test_persisted_user_entry_must_be_an_object(self):
+        with self.assertRaises(ValidationError):
+            user_from_dict("invalid")
+
+    def test_duplicate_persisted_user_ids_are_rejected(self):
+        with open(storage.USERS_FILE, "r", encoding="utf-8") as file:
+            users = json.load(file)
+        duplicate = dict(users[-1])
+        duplicate["username"] = "differentUser"
+        users.append(duplicate)
+        with open(storage.USERS_FILE, "w", encoding="utf-8") as file:
+            json.dump(users, file)
+        with self.assertRaises(RuntimeError):
+            AuthManager()
+
+
+class TestPasswordSecurity(IsolatedStorageTestCase):
+    def test_hash_password_does_not_return_the_raw_password(self):
+        hashed = security.hash_password("pass123")
+        self.assertNotEqual(hashed, "pass123")
+        self.assertIn("$", hashed)
+
+    def test_hash_password_uses_a_random_salt_each_time(self):
+        first = security.hash_password("pass123")
+        second = security.hash_password("pass123")
+        self.assertNotEqual(first, second)
+
+    def test_verify_password_accepts_the_correct_password(self):
+        hashed = security.hash_password("pass123")
+        self.assertTrue(security.verify_password("pass123", hashed))
+
+    def test_verify_password_rejects_the_wrong_password(self):
+        hashed = security.hash_password("pass123")
+        self.assertFalse(security.verify_password("wrong", hashed))
+
+    def test_verify_password_fails_closed_on_malformed_stored_hash(self):
+        self.assertFalse(security.verify_password("pass123", "not-a-valid-hash"))
+        self.assertFalse(security.verify_password("pass123", None))
+
+    def test_registered_users_are_not_persisted_in_plain_text(self):
+        with open(storage.USERS_FILE, "r", encoding="utf-8") as file:
+            content = file.read()
+        self.assertNotIn('"pass"', content)
+        self.assertIn("password_hash", content)
+
+    def test_login_still_works_after_reload_from_hashed_storage(self):
+        reloaded_auth = AuthManager()
+        user = reloaded_auth.login("studentUser", "pass")
+        self.assertEqual(user.username, "studentUser")
+
+    def test_persisted_unhashed_password_field_is_rejected(self):
+        data = {
+            "user_id": 30,
+            "username": "legacyUser",
+            "password": "plaintext",
+            "full_name": "Legacy User",
+            "role": "Student/Visitor",
+        }
+        with self.assertRaises(ValidationError):
+            user_from_dict(data)
+
+    def test_password_prompt_preserves_significant_whitespace(self):
+        with patch.object(cli, "prompt", return_value="  secret phrase  "):
+            self.assertEqual(
+                cli.prompt_password("Mật khẩu: "),
+                "  secret phrase  ",
+            )
+
+    def test_public_registration_cannot_create_admin(self):
+        def choose_role(_label, valid_choices):
+            self.assertEqual(valid_choices, {"2", "3"})
+            return "2"
+
+        with (
+            patch.object(
+                cli,
+                "prompt_nonempty",
+                side_effect=["publicOrg", "Public Organizer"],
+            ),
+            patch.object(cli, "prompt_password", return_value="secret"),
+            patch.object(cli, "prompt_choice", side_effect=choose_role),
+            patch("builtins.print"),
+        ):
+            user = cli.do_register(self.auth)
+        self.assertEqual(user.role_name(), "Event Organizer")
 
 
 class TestEventPermissionsAndCrud(IsolatedStorageTestCase):
@@ -259,6 +391,15 @@ class TestEventPermissionsAndCrud(IsolatedStorageTestCase):
         unchanged = self.manager.get_event(event.event_id)
         self.assertEqual(unchanged.name, "AI Workshop")
         self.assertEqual(unchanged.date_str, "2026-09-01")
+
+    def test_admin_can_clear_optional_description(self):
+        event = self.create_event(description="Remove this description")
+        updated = self.manager.update_event(
+            self.admin,
+            event.event_id,
+            description="",
+        )
+        self.assertEqual(updated.description, "")
 
     def test_capacity_cannot_shrink_below_registration_count(self):
         event = self.create_event(capacity=2)
@@ -506,6 +647,53 @@ class TestSearchReportsAndPersistence(IsolatedStorageTestCase):
         with self.assertRaises(ValidationError):
             EventManager(self.auth)
 
+    def test_persisted_registration_collection_must_be_a_list(self):
+        data = self.create_event().to_dict()
+        data["registered_usernames"] = self.student.username
+        with open(storage.EVENTS_FILE, "w", encoding="utf-8") as file:
+            json.dump([data], file)
+        with self.assertRaises(ValidationError):
+            EventManager(self.auth)
+
+    def test_persisted_registration_username_must_be_text(self):
+        data = self.create_event().to_dict()
+        data["registered_usernames"] = [12345]
+        with open(storage.EVENTS_FILE, "w", encoding="utf-8") as file:
+            json.dump([data], file)
+        with self.assertRaises(ValidationError):
+            EventManager(self.auth)
+
+    def test_persisted_event_entry_must_be_an_object(self):
+        with open(storage.EVENTS_FILE, "w", encoding="utf-8") as file:
+            json.dump(["invalid"], file)
+        with self.assertRaises(ValidationError):
+            EventManager(self.auth)
+
+    def test_duplicate_persisted_event_ids_are_rejected(self):
+        first = self.create_event().to_dict()
+        second = dict(first)
+        second["name"] = "Second Event"
+        with open(storage.EVENTS_FILE, "w", encoding="utf-8") as file:
+            json.dump([first, second], file)
+        with self.assertRaises(RuntimeError):
+            EventManager(self.auth)
+
+    def test_persisted_event_requires_existing_organizer(self):
+        data = self.create_event().to_dict()
+        data["organizer_username"] = "missingOrg"
+        with open(storage.EVENTS_FILE, "w", encoding="utf-8") as file:
+            json.dump([data], file)
+        with self.assertRaises(ValidationError):
+            EventManager(self.auth)
+
+    def test_persisted_attendee_must_be_student_or_visitor(self):
+        data = self.create_event().to_dict()
+        data["registered_usernames"] = [self.admin.username]
+        with open(storage.EVENTS_FILE, "w", encoding="utf-8") as file:
+            json.dump([data], file)
+        with self.assertRaises(ValidationError):
+            EventManager(self.auth)
+
     def test_csv_export_contains_expected_columns_and_utf8_bom(self):
         event = self.create_event(name="Sự Kiện AI")
         self.manager.register_attendee(self.student, event.event_id)
@@ -516,6 +704,86 @@ class TestSearchReportsAndPersistence(IsolatedStorageTestCase):
             rows = list(csv.DictReader(file))
         self.assertEqual(rows[0]["name"], "Sự Kiện AI")
         self.assertEqual(rows[0]["attendees"], self.student.username)
+
+    def test_csv_export_reports_seat_status_in_vietnamese(self):
+        full_event = self.create_event(capacity=1)
+        self.manager.register_attendee(self.student, full_event.event_id)
+        open_event = self.create_event(name="Open Lab", date_str="2026-09-02")
+        path = self.manager.export_statistics_csv()
+        with open(path, "r", encoding="utf-8-sig", newline="") as file:
+            rows = {row["event_id"]: row["status"] for row in csv.DictReader(file)}
+        self.assertEqual(rows[str(full_event.event_id)], "Hết chỗ")
+        self.assertEqual(rows[str(open_event.event_id)], "Còn chỗ")
+
+    def test_csv_export_rejects_path_traversal(self):
+        with self.assertRaises(ValueError):
+            storage.export_csv("../report.csv", ["event_id"], [])
+
+
+class TestUpcomingEventReminders(IsolatedStorageTestCase):
+    def test_attendee_reminder_includes_event_within_window(self):
+        event = self.create_event(date_str="2026-09-01")
+        self.manager.register_attendee(self.student, event.event_id)
+        upcoming = self.manager.upcoming_events_for_attendee(
+            self.student.username, within_days=7, today=date(2026, 8, 28)
+        )
+        self.assertEqual(upcoming, [event])
+
+    def test_attendee_reminder_excludes_event_far_in_the_future(self):
+        event = self.create_event(date_str="2026-09-01")
+        self.manager.register_attendee(self.student, event.event_id)
+        upcoming = self.manager.upcoming_events_for_attendee(
+            self.student.username, within_days=7, today=date(2026, 8, 1)
+        )
+        self.assertEqual(upcoming, [])
+
+    def test_attendee_reminder_excludes_event_already_in_the_past(self):
+        event = self.create_event(date_str="2026-09-01")
+        self.manager.register_attendee(self.student, event.event_id)
+        upcoming = self.manager.upcoming_events_for_attendee(
+            self.student.username, within_days=7, today=date(2026, 9, 5)
+        )
+        self.assertEqual(upcoming, [])
+
+    def test_organizer_reminder_only_covers_their_own_events(self):
+        owned = self.create_event(date_str="2026-09-01")
+        self.create_event(
+            name="Other Lab",
+            date_str="2026-09-01",
+            organizer_username=self.organizer2.username,
+        )
+        upcoming = self.manager.upcoming_events_for_organizer(
+            self.organizer.username, within_days=7, today=date(2026, 8, 30)
+        )
+        self.assertEqual(upcoming, [owned])
+
+    def test_reminder_window_must_be_non_negative_integer(self):
+        for invalid in (-1, True, "abc"):
+            with self.subTest(invalid=invalid):
+                with self.assertRaises(ValidationError):
+                    self.manager.upcoming_events_for_attendee(
+                        self.student.username,
+                        within_days=invalid,
+                        today=date(2026, 8, 30),
+                    )
+
+    def test_reminder_accepts_datetime_reference(self):
+        event = self.create_event(date_str="2026-09-01")
+        self.manager.register_attendee(self.student, event.event_id)
+        upcoming = self.manager.upcoming_events_for_attendee(
+            self.student.username,
+            within_days=7,
+            today=datetime(2026, 8, 30, 12, 0),
+        )
+        self.assertEqual(upcoming, [event])
+
+    def test_reminder_rejects_invalid_reference_date(self):
+        with self.assertRaises(ValidationError):
+            self.manager.upcoming_events_for_attendee(
+                self.student.username,
+                within_days=7,
+                today="2026-08-30",
+            )
 
 
 if __name__ == "__main__":

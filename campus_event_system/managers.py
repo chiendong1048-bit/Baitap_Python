@@ -1,8 +1,9 @@
 """Business rules for events, permissions, registrations, and reports."""
 
-from datetime import datetime
+from datetime import date, datetime, timedelta
 
 from exceptions import (
+    CampusEventError,
     DuplicateRegistrationError,
     EventFullError,
     EventNotFoundError,
@@ -11,6 +12,7 @@ from exceptions import (
 )
 from models import (
     Admin,
+    DATE_FORMAT,
     Event,
     Organizer,
     StudentVisitor,
@@ -18,6 +20,8 @@ from models import (
     validate_date,
 )
 import storage
+
+DEFAULT_REMINDER_WINDOW_DAYS = 7
 
 
 class EventManager:
@@ -35,6 +39,7 @@ class EventManager:
                 raise RuntimeError(
                     f"Dữ liệu chứa Event ID trùng lặp: {event.event_id}."
                 )
+            self._validate_loaded_event_users(event)
             self.events[event.event_id] = event
         if self.events:
             self._next_id = max(self.events) + 1
@@ -174,6 +179,55 @@ class EventManager:
             if normalized_username in event.registered_usernames
         ]
 
+    def _events_within_window(self, events, within_days, today):
+        if isinstance(within_days, bool):
+            raise ValidationError("Số ngày nhắc lịch phải là số nguyên không âm.")
+        try:
+            normalized_days = int(str(within_days).strip())
+        except (TypeError, ValueError) as error:
+            raise ValidationError(
+                "Số ngày nhắc lịch phải là số nguyên không âm."
+            ) from error
+        if normalized_days < 0:
+            raise ValidationError("Số ngày nhắc lịch phải là số nguyên không âm.")
+
+        if today is None:
+            reference = date.today()
+        elif isinstance(today, datetime):
+            reference = today.date()
+        elif isinstance(today, date):
+            reference = today
+        else:
+            raise ValidationError("Ngày tham chiếu nhắc lịch không hợp lệ.")
+
+        horizon = reference + timedelta(days=normalized_days)
+        upcoming = []
+        for event in events:
+            event_date = datetime.strptime(event.date_str, DATE_FORMAT).date()
+            if reference <= event_date <= horizon:
+                upcoming.append(event)
+        return upcoming
+
+    def upcoming_events_for_attendee(
+        self, username, within_days=DEFAULT_REMINDER_WINDOW_DAYS, today=None
+    ):
+        """Events the given attendee is registered for in the next N days.
+
+        Automated reminder used at login so a Student/Visitor never misses an
+        event they signed up for.
+        """
+        return self._events_within_window(
+            self.events_for_attendee(username), within_days, today
+        )
+
+    def upcoming_events_for_organizer(
+        self, organizer_username, within_days=DEFAULT_REMINDER_WINDOW_DAYS, today=None
+    ):
+        """Events the given organizer owns that are happening in the next N days."""
+        return self._events_within_window(
+            self.list_events_for_organizer(organizer_username), within_days, today
+        )
+
     def total_attendees(self):
         return sum(event.registered_count for event in self.events.values())
 
@@ -232,6 +286,7 @@ class EventManager:
                 "capacity": event.capacity,
                 "registered": event.registered_count,
                 "seats_left": event.seats_left,
+                "status": "Hết chỗ" if event.is_full else "Còn chỗ",
                 "attendees": "; ".join(event.registered_usernames),
             }
             for event in self.list_all_events()
@@ -244,6 +299,7 @@ class EventManager:
             "capacity",
             "registered",
             "seats_left",
+            "status",
             "attendees",
         ]
         filename = f"event_report_{datetime.now().strftime('%Y%m%d_%H%M%S_%f')}.csv"
@@ -260,6 +316,27 @@ class EventManager:
                 f"Tài khoản '{user.username}' không phải Event Organizer."
             )
         return user.username
+
+    def _validate_loaded_event_users(self, event):
+        if self.auth_manager is None:
+            return
+        try:
+            organizer = self.auth_manager.get_user(event.organizer_username)
+            if not isinstance(organizer, Organizer):
+                raise ValidationError(
+                    f"Organizer '{event.organizer_username}' không đúng vai trò."
+                )
+            for username in event.registered_usernames:
+                attendee = self.auth_manager.get_user(username)
+                if not isinstance(attendee, StudentVisitor):
+                    raise ValidationError(
+                        f"Người tham gia '{username}' không phải Student/Visitor."
+                    )
+        except CampusEventError as error:
+            raise ValidationError(
+                f"Dữ liệu sự kiện ID {event.event_id} tham chiếu tài khoản "
+                f"không hợp lệ: {error}"
+            ) from error
 
     def _resolve_registration_target(self, actor, event, username):
         if isinstance(actor, StudentVisitor):

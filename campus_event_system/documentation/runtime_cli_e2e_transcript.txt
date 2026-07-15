@@ -1,0 +1,406 @@
+
+====================================================================
+CAMPUS EVENT MANAGEMENT SYSTEM
+====================================================================
+1. Đăng nhập
+2. Đăng ký tài khoản
+0. Thoát
+Lựa chọn: 
+====================================================================
+ĐĂNG KÝ TÀI KHOẢN
+====================================================================
+Username (chỉ chữ và số): Mật khẩu: Họ và tên: 2. Event Organizer
+3. Student/Visitor
+Tài khoản Admin chỉ được cấp sẵn cho mục đích quản trị.
+Chọn vai trò: [Thành công] Đã tạo tài khoản orge2e với vai trò Event Organizer.
+
+====================================================================
+CAMPUS EVENT MANAGEMENT SYSTEM
+====================================================================
+1. Đăng nhập
+2. Đăng ký tài khoản
+0. Thoát
+Lựa chọn: 
+====================================================================
+ĐĂNG KÝ TÀI KHOẢN
+====================================================================
+Username (chỉ chữ và số): Mật khẩu: Họ và tên: 2. Event Organizer
+3. Student/Visitor
+Tài khoản Admin chỉ được cấp sẵn cho mục đích quản trị.
+Chọn vai trò: [Thành công] Đã tạo tài khoản studente2e với vai trò Student/Visitor.
+
+====================================================================
+CAMPUS EVENT MANAGEMENT SYSTEM
+====================================================================
+1. Đăng nhập
+2. Đăng ký tài khoản
+0. Thoát
+Lựa chọn: 
+====================================================================
+ĐĂNG NHẬP
+====================================================================
+Username: Mật khẩu: [Thành công] Xin chào System Admin.
+
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: Tên sự kiện: Ngày (YYYY-MM-DD): Sức chứa: Organizer username: Mô tả (không bắt buộc): [Thành công] Đã tạo sự kiện ID 1.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: Event ID: Để trống để giữ nguyên; nhập '-' ở mô tả để xóa nội dung.
+Tên [AI Workshop]: Ngày [2026-07-18]: Sức chứa [2]: Organizer [orge2e]: Mô tả [Hands-on AI lab]: [Thành công] Đã cập nhật sự kiện.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: Event ID: Để trống để giữ nguyên; nhập '-' ở mô tả để xóa nội dung.
+Tên [AI Workshop]: Ngày [2026-07-18]: Sức chứa [2]: Organizer [orge2e]: Mô tả [trống]: [Thành công] Đã cập nhật sự kiện.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: 
+====================================================================
+TẤT CẢ SỰ KIỆN (1)
+====================================================================
+[1] AI Workshop | 2026-07-18 | 0/2 (còn 2 chỗ) | Organizer: orge2e
+    Mô tả: Hands-on AI lab
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: Đã đăng xuất.
+
+====================================================================
+CAMPUS EVENT MANAGEMENT SYSTEM
+====================================================================
+1. Đăng nhập
+2. Đăng ký tài khoản
+0. Thoát
+Lựa chọn: 
+====================================================================
+ĐĂNG NHẬP
+====================================================================
+Username: Mật khẩu: [Thành công] Xin chào Nguyen Van Organizer.
+
+====================================================================
+SỰ KIỆN BẠN PHỤ TRÁCH SẮP DIỄN RA (7 NGÀY TỚI)
+====================================================================
+[1] AI Workshop | 2026-07-18 | 0/2 (còn 2 chỗ) | Organizer: orge2e
+    Mô tả: Hands-on AI lab
+
+====================================================================
+EVENT ORGANIZER - Nguyen Van Organizer
+====================================================================
+1. Xem chi tiết sự kiện của tôi
+2. Quản lý đăng ký người tham gia
+0. Đăng xuất
+Lựa chọn: 
+====================================================================
+SỰ KIỆN CỦA TÔI (1)
+====================================================================
+[1] AI Workshop | 2026-07-18 | 0/2 (còn 2 chỗ) | Organizer: orge2e
+    Mô tả: Hands-on AI lab
+
+====================================================================
+Người tham gia - [1] AI Workshop
+====================================================================
+Chưa có người đăng ký.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+EVENT ORGANIZER - Nguyen Van Organizer
+====================================================================
+1. Xem chi tiết sự kiện của tôi
+2. Quản lý đăng ký người tham gia
+0. Đăng xuất
+Lựa chọn: Event ID: 1. Thêm đăng ký  2. Hủy đăng ký: Student/Visitor username: [Thành công] Đã đăng ký studente2e (1/2).
+
+Nhấn Enter để tiếp tục...
+====================================================================
+EVENT ORGANIZER - Nguyen Van Organizer
+====================================================================
+1. Xem chi tiết sự kiện của tôi
+2. Quản lý đăng ký người tham gia
+0. Đăng xuất
+Lựa chọn: 
+====================================================================
+SỰ KIỆN CỦA TÔI (1)
+====================================================================
+[1] AI Workshop | 2026-07-18 | 1/2 (còn 1 chỗ) | Organizer: orge2e
+    Mô tả: Hands-on AI lab
+
+====================================================================
+Người tham gia - [1] AI Workshop
+====================================================================
+1. Tran Gia Huy (studente2e)
+
+Nhấn Enter để tiếp tục...
+====================================================================
+EVENT ORGANIZER - Nguyen Van Organizer
+====================================================================
+1. Xem chi tiết sự kiện của tôi
+2. Quản lý đăng ký người tham gia
+0. Đăng xuất
+Lựa chọn: Đã đăng xuất.
+
+====================================================================
+CAMPUS EVENT MANAGEMENT SYSTEM
+====================================================================
+1. Đăng nhập
+2. Đăng ký tài khoản
+0. Thoát
+Lựa chọn: 
+====================================================================
+ĐĂNG NHẬP
+====================================================================
+Username: Mật khẩu: [Thành công] Xin chào Tran Gia Huy.
+
+====================================================================
+SỰ KIỆN BẠN ĐÃ ĐĂNG KÝ SẮP DIỄN RA (7 NGÀY TỚI)
+====================================================================
+[1] AI Workshop | 2026-07-18 | 1/2 (còn 1 chỗ) | Organizer: orge2e
+    Mô tả: Hands-on AI lab
+
+====================================================================
+STUDENT/VISITOR - Tran Gia Huy
+====================================================================
+1. Tìm kiếm sự kiện
+2. Đăng ký sự kiện
+3. Hủy đăng ký
+4. Xem sự kiện đã đăng ký
+0. Đăng xuất
+Lựa chọn: Từ khóa tên/mô tả (có thể để trống): Ngày YYYY-MM-DD (có thể để trống): Chỉ hiện sự kiện còn chỗ? (Y/N): 
+====================================================================
+KẾT QUẢ TÌM KIẾM (1)
+====================================================================
+[1] AI Workshop | 2026-07-18 | 1/2 (còn 1 chỗ) | Organizer: orge2e
+    Mô tả: Hands-on AI lab
+
+Nhấn Enter để tiếp tục...
+====================================================================
+STUDENT/VISITOR - Tran Gia Huy
+====================================================================
+1. Tìm kiếm sự kiện
+2. Đăng ký sự kiện
+3. Hủy đăng ký
+4. Xem sự kiện đã đăng ký
+0. Đăng xuất
+Lựa chọn: Event ID: [Lỗi] 'studente2e' đã đăng ký sự kiện 'AI Workshop'.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+STUDENT/VISITOR - Tran Gia Huy
+====================================================================
+1. Tìm kiếm sự kiện
+2. Đăng ký sự kiện
+3. Hủy đăng ký
+4. Xem sự kiện đã đăng ký
+0. Đăng xuất
+Lựa chọn: 
+====================================================================
+SỰ KIỆN ĐÃ ĐĂNG KÝ (1)
+====================================================================
+[1] AI Workshop | 2026-07-18 | 1/2 (còn 1 chỗ) | Organizer: orge2e
+    Mô tả: Hands-on AI lab
+
+Nhấn Enter để tiếp tục...
+====================================================================
+STUDENT/VISITOR - Tran Gia Huy
+====================================================================
+1. Tìm kiếm sự kiện
+2. Đăng ký sự kiện
+3. Hủy đăng ký
+4. Xem sự kiện đã đăng ký
+0. Đăng xuất
+Lựa chọn: Event ID: [Thành công] Đã hủy đăng ký 'AI Workshop'.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+STUDENT/VISITOR - Tran Gia Huy
+====================================================================
+1. Tìm kiếm sự kiện
+2. Đăng ký sự kiện
+3. Hủy đăng ký
+4. Xem sự kiện đã đăng ký
+0. Đăng xuất
+Lựa chọn: 
+====================================================================
+SỰ KIỆN ĐÃ ĐĂNG KÝ (0)
+====================================================================
+Bạn chưa đăng ký sự kiện nào.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+STUDENT/VISITOR - Tran Gia Huy
+====================================================================
+1. Tìm kiếm sự kiện
+2. Đăng ký sự kiện
+3. Hủy đăng ký
+4. Xem sự kiện đã đăng ký
+0. Đăng xuất
+Lựa chọn: Đã đăng xuất.
+
+====================================================================
+CAMPUS EVENT MANAGEMENT SYSTEM
+====================================================================
+1. Đăng nhập
+2. Đăng ký tài khoản
+0. Thoát
+Lựa chọn: 
+====================================================================
+ĐĂNG NHẬP
+====================================================================
+Username: Mật khẩu: [Thành công] Xin chào System Admin.
+
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: Event ID: 
+====================================================================
+Người tham gia - [1] AI Workshop
+====================================================================
+Chưa có người đăng ký.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: 
+====================================================================
+BÁO CÁO THỐNG KÊ
+====================================================================
+Tổng sự kiện: 1
+Tổng lượt đăng ký: 0
+Đông nhất: AI Workshop (0)
+Ít nhất: AI Workshop (0)
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: [Thành công] Báo cáo đã lưu tại: /home/ubuntu/repos/Baitap_Python/campus_event_system/reports/event_report_20260715_013328_490974.csv
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: Event ID: Xác nhận xóa? (Y/N): [Thành công] Đã xóa sự kiện.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: 
+====================================================================
+TẤT CẢ SỰ KIỆN (0)
+====================================================================
+Chưa có sự kiện.
+
+Nhấn Enter để tiếp tục...
+====================================================================
+ADMIN - System Admin
+====================================================================
+1. Xem tất cả sự kiện
+2. Tạo sự kiện
+3. Cập nhật sự kiện
+4. Xóa sự kiện
+5. Xem người tham gia
+6. Xem báo cáo thống kê
+7. Xuất báo cáo CSV
+0. Đăng xuất
+Lựa chọn: Đã đăng xuất.
+
+====================================================================
+CAMPUS EVENT MANAGEMENT SYSTEM
+====================================================================
+1. Đăng nhập
+2. Đăng ký tài khoản
+0. Thoát
+Lựa chọn: Cảm ơn bạn đã sử dụng hệ thống.

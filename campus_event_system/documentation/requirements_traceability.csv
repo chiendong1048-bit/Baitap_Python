@@ -1,0 +1,20 @@
+﻿Requirement ID,Yêu cầu,Trạng thái,Evidence
+FR-ADMIN-01,Admin tạo sự kiện,PASS,create_event + CLI E2E
+FR-ADMIN-02,Admin cập nhật sự kiện,PASS,update_event atomic + CLI
+FR-ADMIN-03,Admin xóa sự kiện,PASS,delete_event + CLI E2E
+FR-ADMIN-04,Admin xem tất cả event và attendee,PASS,Admin menu
+FR-ORG-01,Organizer xem chi tiết event của mình,PASS,Ownership filter
+FR-ORG-02,Organizer quản lý registration event của mình,PASS,RBAC manager
+FR-STU-01,Student/Visitor tìm kiếm sự kiện,PASS,Tên/mô tả/ngày/còn chỗ
+FR-STU-02,Student/Visitor đăng ký và hủy đăng ký,PASS,Self-only RBAC
+FR-STU-03,Student/Visitor xem event đã đăng ký,PASS,events_for_attendee
+FR-VAL-01,"Validate tên, ngày, sức chứa",PASS,Boundary tests
+FR-REG-01,"Capacity check, confirmation, chống trùng",PASS,Custom exceptions
+FR-STAT-01,"Tổng attendee, event cao/thấp nhất",PASS,Tie/empty-state tests
+FR-DATA-01,Lưu users/events bằng file,PASS,JSON atomic persistence
+FR-DATA-02,Xuất báo cáo thống kê,PASS,UTF-8 BOM CSV + status
+NFR-OOP-01,"OOP, kế thừa, đa hình, module hóa",PASS,User hierarchy/managers
+NFR-DOC-01,Flowchart và mô tả class/method,PASS,PNG/Mermaid/report
+NFR-DOC-02,Screenshot cho từng vai trò,PASS,3 role screenshots
+CR-REMINDER,Tính năng sáng tạo: nhắc lịch 7 ngày,PASS,Login reminder
+NFR-SEC,"Mật khẩu băm, không public Admin signup",PASS,PBKDF2 + CLI restriction

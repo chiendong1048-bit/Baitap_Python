@@ -1,0 +1,18 @@
+PASS: public admin signup blocked
+PASS: admin created event
+PASS: admin updated event
+PASS: organizer reminder displayed
+PASS: organizer registered attendee
+PASS: student reminder displayed
+PASS: search returned one event
+PASS: duplicate registration blocked
+PASS: student cancellation succeeded
+PASS: statistics displayed
+PASS: csv export succeeded
+PASS: event deletion succeeded
+PASS: normal exit
+PASS: no traceback
+PASS: all roles persisted with hashes and no plaintext passwords
+PASS: deleted event removed from JSON persistence
+PASS: CSV contains expected event statistics and status
+PASS: 17 runtime assertions completed

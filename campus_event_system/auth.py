@@ -1,7 +1,15 @@
 """Registration, lookup, and login services."""
 
 from exceptions import AuthenticationError, UserNotFoundError, ValidationError
-from models import Admin, Organizer, StudentVisitor, clean_whitespace, user_from_dict
+from models import (
+    Admin,
+    Organizer,
+    StudentVisitor,
+    clean_whitespace,
+    user_from_dict,
+    validate_username,
+)
+from security import hash_password, verify_password
 import storage
 
 
@@ -39,7 +47,7 @@ class AuthManager:
         storage.save_users([user.to_dict() for user in users])
 
     def register(self, username, password, full_name, role_key):
-        cleaned_username = clean_whitespace(username)
+        cleaned_username = validate_username(username)
         if cleaned_username in self.users:
             raise ValidationError(
                 f"Tài khoản '{cleaned_username}' đã tồn tại trong hệ thống."
@@ -47,11 +55,13 @@ class AuthManager:
         role_class = ROLE_MENU.get(str(role_key))
         if role_class is None:
             raise ValidationError("Lựa chọn vai trò không hợp lệ.")
+        if not password or not str(password).strip():
+            raise ValidationError("Mật khẩu không được để trống.")
 
         user = role_class(
             self._next_id,
             cleaned_username,
-            password,
+            hash_password(str(password)),
             full_name,
         )
         self.users[user.username] = user
@@ -64,7 +74,7 @@ class AuthManager:
         user = self.users.get(cleaned_username)
         if user is None:
             raise AuthenticationError("Tài khoản không tồn tại.")
-        if user.password != password:
+        if not verify_password(str(password), user.password_hash):
             raise AuthenticationError("Mật khẩu không đúng.")
         return user
 

@@ -22,6 +22,7 @@ DATE_FORMAT = "%Y-%m-%d"
 MAX_EVENT_CAPACITY = 100_000
 MAX_EVENT_NAME_LENGTH = 100
 MAX_DESCRIPTION_LENGTH = 500
+MAX_USERNAME_LENGTH = 30
 
 
 def clean_whitespace(value):
@@ -29,6 +30,22 @@ def clean_whitespace(value):
     if value is None:
         return ""
     return " ".join(str(value).strip().split())
+
+
+def validate_username(username):
+    """Return a normalized alphanumeric username."""
+    if not isinstance(username, str):
+        raise ValidationError("Username phải là chuỗi ký tự.")
+    cleaned = clean_whitespace(username)
+    if not cleaned or not cleaned.isalnum():
+        raise ValidationError(
+            "Username chỉ được chứa chữ cái và chữ số, không có khoảng trắng."
+        )
+    if len(cleaned) > MAX_USERNAME_LENGTH:
+        raise ValidationError(
+            f"Username không được vượt quá {MAX_USERNAME_LENGTH} ký tự."
+        )
+    return cleaned
 
 
 def clean_full_name(name):
@@ -90,19 +107,17 @@ def validate_date(date_str):
 class User(ABC):
     """Base class for authenticated users."""
 
-    def __init__(self, user_id, username, password, full_name):
-        cleaned_username = clean_whitespace(username)
-        if not cleaned_username or not cleaned_username.isalnum():
+    def __init__(self, user_id, username, password_hash, full_name):
+        cleaned_username = validate_username(username)
+        if not password_hash or not str(password_hash).strip():
             raise ValidationError(
-                "Username chỉ được chứa chữ cái và chữ số, không có khoảng trắng."
+                "Dữ liệu mật khẩu đã băm không được để trống."
             )
-        if len(cleaned_username) > 30:
-            raise ValidationError("Username không được vượt quá 30 ký tự.")
-        if not password or not str(password).strip():
-            raise ValidationError("Mật khẩu không được để trống.")
 
+        if isinstance(user_id, bool):
+            raise ValidationError("User ID phải là số nguyên dương.")
         try:
-            normalized_id = int(user_id)
+            normalized_id = int(str(user_id).strip())
         except (TypeError, ValueError) as error:
             raise ValidationError("User ID phải là số nguyên dương.") from error
         if normalized_id <= 0:
@@ -110,7 +125,7 @@ class User(ABC):
 
         self.user_id = normalized_id
         self.username = cleaned_username
-        self.password = str(password)
+        self.password_hash = str(password_hash)
         self.full_name = clean_full_name(full_name)
 
     @abstractmethod
@@ -125,7 +140,7 @@ class User(ABC):
         return {
             "user_id": self.user_id,
             "username": self.username,
-            "password": self.password,
+            "password_hash": self.password_hash,
             "full_name": self.full_name,
             "role": self.role_name(),
         }
@@ -183,13 +198,15 @@ ROLE_CLASS_MAP = {
 
 def user_from_dict(data):
     """Deserialize a user while rejecting unknown persisted roles."""
+    if not isinstance(data, dict):
+        raise ValidationError("Mỗi người dùng trong dữ liệu phải là một object JSON.")
     try:
         role = data["role"]
         role_class = ROLE_CLASS_MAP[role]
         return role_class(
             data["user_id"],
             data["username"],
-            data["password"],
+            data["password_hash"],
             data["full_name"],
         )
     except KeyError as error:
@@ -216,7 +233,7 @@ class Event:
         if isinstance(event_id, bool):
             raise ValidationError("Event ID phải là số nguyên dương.")
         try:
-            normalized_id = int(event_id)
+            normalized_id = int(str(event_id).strip())
         except (TypeError, ValueError) as error:
             raise ValidationError("Event ID phải là số nguyên dương.") from error
         if normalized_id <= 0:
@@ -286,6 +303,8 @@ class Event:
 
     @classmethod
     def from_dict(cls, data):
+        if not isinstance(data, dict):
+            raise ValidationError("Mỗi sự kiện trong dữ liệu phải là một object JSON.")
         try:
             event = cls(
                 data["event_id"],
@@ -295,13 +314,16 @@ class Event:
                 data["organizer_username"],
                 data.get("description", ""),
             )
-            registrations = list(data.get("registered_usernames", []))
+            raw_registrations = data.get("registered_usernames", [])
         except KeyError as error:
             raise ValidationError(
                 f"Dữ liệu sự kiện thiếu trường '{error.args[0]}'."
             ) from error
-        if any(not clean_whitespace(username) for username in registrations):
-            raise ValidationError("Danh sách đăng ký chứa username trống.")
+        if not isinstance(raw_registrations, list):
+            raise ValidationError("Danh sách đăng ký phải là một danh sách JSON.")
+        registrations = [
+            validate_username(username) for username in raw_registrations
+        ]
         if len(set(registrations)) != len(registrations):
             raise ValidationError("Danh sách đăng ký chứa username trùng lặp.")
         if len(registrations) > event.capacity:

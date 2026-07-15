@@ -18,6 +18,14 @@ def prompt_nonempty(label):
         print("  [Lỗi] Nội dung không được để trống.")
 
 
+def prompt_password(label):
+    while True:
+        value = prompt(label)
+        if value and value.strip():
+            return value
+        print("  [Lỗi] Mật khẩu không được để trống.")
+
+
 def prompt_choice(label, valid_choices):
     while True:
         value = prompt(label).strip()
@@ -80,10 +88,11 @@ def print_attendees(event, auth_manager):
 def do_register(auth_manager):
     print_header("ĐĂNG KÝ TÀI KHOẢN")
     username = prompt_nonempty("Username (chỉ chữ và số): ")
-    password = prompt_nonempty("Mật khẩu: ")
+    password = prompt_password("Mật khẩu: ")
     full_name = prompt_nonempty("Họ và tên: ")
-    print("1. Admin\n2. Event Organizer\n3. Student/Visitor")
-    role_key = prompt_choice("Chọn vai trò: ", {"1", "2", "3"})
+    print("2. Event Organizer\n3. Student/Visitor")
+    print("Tài khoản Admin chỉ được cấp sẵn cho mục đích quản trị.")
+    role_key = prompt_choice("Chọn vai trò: ", {"2", "3"})
     user = auth_manager.register(username, password, full_name, role_key)
     print(
         f"[Thành công] Đã tạo tài khoản {user.username} "
@@ -95,10 +104,27 @@ def do_register(auth_manager):
 def do_login(auth_manager):
     print_header("ĐĂNG NHẬP")
     username = prompt_nonempty("Username: ")
-    password = prompt_nonempty("Mật khẩu: ")
+    password = prompt_password("Mật khẩu: ")
     user = auth_manager.login(username, password)
     print(f"[Thành công] Xin chào {user.full_name}.")
     return user
+
+
+def show_upcoming_reminders(user, event_manager):
+    """Automated reminder: flag events happening within the next 7 days."""
+    if isinstance(user, StudentVisitor):
+        upcoming = event_manager.upcoming_events_for_attendee(user.username)
+        label = "SỰ KIỆN BẠN ĐÃ ĐĂNG KÝ SẮP DIỄN RA (7 NGÀY TỚI)"
+    elif isinstance(user, Organizer):
+        upcoming = event_manager.upcoming_events_for_organizer(user.username)
+        label = "SỰ KIỆN BẠN PHỤ TRÁCH SẮP DIỄN RA (7 NGÀY TỚI)"
+    else:
+        return
+    if not upcoming:
+        return
+    print_header(label)
+    for event in upcoming:
+        print_event(event)
 
 
 def admin_menu(user, event_manager, auth_manager):
@@ -132,7 +158,9 @@ def admin_menu(user, event_manager, auth_manager):
                 print(f"[Thành công] Đã tạo sự kiện ID {event.event_id}.")
             elif choice == "3":
                 event = event_manager.get_event(prompt_int("Event ID: "))
-                print("Để trống để giữ nguyên giá trị hiện tại.")
+                print(
+                    "Để trống để giữ nguyên; nhập '-' ở mô tả để xóa nội dung."
+                )
                 name = prompt(f"Tên [{event.name}]: ").strip() or event.name
                 date_str = (
                     prompt(f"Ngày [{event.date_str}]: ").strip() or event.date_str
@@ -148,11 +176,12 @@ def admin_menu(user, event_manager, auth_manager):
                 description_input = prompt(
                     f"Mô tả [{event.description or 'trống'}]: "
                 )
-                description = (
-                    event.description
-                    if not description_input.strip()
-                    else description_input
-                )
+                if description_input.strip() == "-":
+                    description = ""
+                elif not description_input.strip():
+                    description = event.description
+                else:
+                    description = description_input
                 event_manager.update_event(
                     user,
                     event.event_id,
@@ -339,6 +368,7 @@ def main():
         try:
             if choice == "1":
                 user = do_login(auth_manager)
+                show_upcoming_reminders(user, event_manager)
                 MENU_BY_ROLE[type(user)](user, event_manager, auth_manager)
             elif choice == "2":
                 do_register(auth_manager)
@@ -354,5 +384,5 @@ if __name__ == "__main__":
         main()
     except (KeyboardInterrupt, EOFError):
         print("\nChương trình đã dừng an toàn.")
-    except (OSError, RuntimeError) as error:
+    except (CampusEventError, OSError, RuntimeError) as error:
         print(f"\n[Lỗi hệ thống] {error}")
